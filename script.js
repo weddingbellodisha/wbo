@@ -10,9 +10,17 @@ $(document).ready(function() {
     });
 
     // 2. Preloader Logic
-    $(window).on('load', function() {
-        $('.preloader').fadeOut(800);
-    });
+    // Fade out preloader after page loads OR after 3 seconds (whichever comes first)
+    function hidePreloader() {
+        $('.preloader').addClass('hide').fadeOut(800, function() {
+            $(this).hide();
+        });
+    }
+    
+    $(window).on('load', hidePreloader);
+    
+    // Fallback: hide preloader after 3 seconds to prevent getting stuck
+    setTimeout(hidePreloader, 3000);
 
     // 3. Navbar Transition on Scroll
     $(window).on('scroll', function() {

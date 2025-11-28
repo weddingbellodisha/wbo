@@ -1,0 +1,289 @@
+<!-- 
+WeddingBellOdisha - Additional SEO HTML Snippets
+These snippets can be added to index.html in the future for additional SEO improvements
+-->
+
+<!-- ===== SNIPPET 1: FAQ SCHEMA ===== -->
+<!-- Add this in <head> section for FAQ SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the cost of wedding photography?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our wedding photography packages start at affordable rates for full-day coverage. Contact us via WhatsApp for custom quotes based on your requirements."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How far in advance should I book?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We recommend booking at least 3-6 months in advance to ensure your preferred dates are available. Contact us early for better availability."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you provide pre-wedding shoots?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, we specialize in artistic pre-wedding shoots with customized themes and locations around Odisha. We also offer couple sessions and engagement photography."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What areas do you cover?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We primarily serve Bhubaneswar and across Odisha. We also travel to other states for destination weddings. Contact us for your specific location."
+      }
+    }
+  ]
+}
+</script>
+
+<!-- ===== SNIPPET 2: BREADCRUMB SCHEMA ===== -->
+<!-- Add this on service pages for better navigation SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://weddingbellodisha.in"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Services",
+      "item": "https://weddingbellodisha.in/#services"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Wedding Photography",
+      "item": "https://weddingbellodisha.in/services/wedding-photography"
+    }
+  ]
+}
+</script>
+
+<!-- ===== SNIPPET 3: AGGREGATE RATING SCHEMA ===== -->
+<!-- Add this when you have collected client reviews -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "WeddingBellOdisha",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "48",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "review": [
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Couple Name"
+      },
+      "datePublished": "2025-01-15",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": "5"
+      },
+      "reviewBody": "Amazing work! WeddingBellOdisha captured our wedding perfectly. Highly recommended!"
+    }
+  ]
+}
+</script>
+
+<!-- ===== SNIPPET 4: GOOGLE ANALYTICS 4 ===== -->
+<!-- Add this before closing </head> tag for analytics tracking -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA4_ID"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'YOUR_GA4_ID', {
+    'page_path': window.location.pathname
+  });
+</script>
+
+<!-- ===== SNIPPET 5: GOOGLE SEARCH CONSOLE VERIFICATION ===== -->
+<!-- Add this in <head> (use one of these methods) -->
+<meta name="google-site-verification" content="YOUR_VERIFICATION_CODE_HERE">
+
+<!-- ===== SNIPPET 6: RICH SNIPPET FOR SERVICES ===== -->
+<!-- For individual service pages - include in service page <head> -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Wedding Photography",
+  "description": "Professional wedding photography services in Odisha specializing in cinematic films and candid wedding photography",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "WeddingBellOdisha",
+    "image": "https://weddingbellodisha.in/assets/logo/logo_wbo.png",
+    "url": "https://weddingbellodisha.in",
+    "telephone": "+917978325313"
+  },
+  "areaServed": {
+    "@type": "State",
+    "name": "Odisha"
+  },
+  "availableLanguage": "en",
+  "priceRange": "$$"
+}
+</script>
+
+<!-- ===== SNIPPET 7: VIDEO SCHEMA ===== -->
+<!-- For YouTube videos or hosted wedding highlight videos -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": "Wedding Highlights - Bride & Groom",
+  "description": "Beautiful cinematic wedding highlights video by WeddingBellOdisha",
+  "thumbnailUrl": "https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg",
+  "uploadDate": "2025-01-15T12:00:00Z",
+  "duration": "PT5M30S",
+  "contentUrl": "https://www.youtube.com/embed/VIDEO_ID",
+  "embedUrl": "https://www.youtube.com/embed/VIDEO_ID"
+}
+</script>
+
+<!-- ===== SNIPPET 8: IMAGE OPTIMIZATION ===== -->
+<!-- For gallery images - use width/height attributes to prevent CLS -->
+<!-- Example: -->
+<img 
+  loading="lazy" 
+  width="400" 
+  height="300" 
+  src="image.jpg" 
+  alt="Wedding photography description with keywords"
+  srcset="image-mobile.jpg 400w, image-tablet.jpg 800w, image-desktop.jpg 1200w"
+/>
+
+<!-- ===== SNIPPET 9: CONTACT FORM SCHEMA ===== -->
+<!-- When you add a contact form -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "DigitalDocument",
+  "name": "Contact Form",
+  "url": "https://weddingbellodisha.in/#contact",
+  "description": "Get in touch with WeddingBellOdisha for wedding photography inquiries"
+}
+</script>
+
+<!-- ===== SNIPPET 10: META TAGS FOR BLOG POSTS ===== -->
+<!-- Template for blog post pages -->
+<meta name="description" content="[Blog post summary - 155 characters max]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Blog Post Title]">
+<meta property="og:description" content="[Blog post summary]">
+<meta property="og:image" content="https://weddingbellodisha.in/assets/blog/featured-image.jpg">
+<meta property="article:published_time" content="2025-01-15">
+<meta property="article:author" content="WeddingBellOdisha">
+<meta name="author" content="WeddingBellOdisha">
+
+<!-- ===== SNIPPET 11: PERFORMANCE OPTIMIZATION ===== -->
+<!-- Add these for better performance -->
+<!-- Preload critical resources -->
+<link rel="preload" as="image" href="assets/about/about.jpg">
+<link rel="preload" as="font" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond" crossorigin>
+
+<!-- Prefetch DNS for external resources -->
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://unpkg.com">
+
+<!-- ===== SNIPPET 12: SOCIAL MEDIA META TAGS ===== -->
+<!-- For Instagram link in bio -->
+<meta property="og:type" content="profile">
+<meta property="og:url" content="https://www.instagram.com/weddingbellodisha/">
+<meta property="og:title" content="@weddingbellodisha - Wedding Photography">
+<meta property="og:description" content="Follow us for cinematic wedding photography inspiration">
+
+<!-- ===== IMPLEMENTATION INSTRUCTIONS ===== -->
+
+/*
+IMPLEMENTATION GUIDE:
+
+1. FAQ SCHEMA
+   - Add to index.html <head> once you're ready
+   - Helps with "People Also Ask" section
+   - Shows as accordion in search results
+
+2. BREADCRUMB SCHEMA
+   - Add to each service page
+   - Improves navigation SEO
+   - Shows path in search results
+
+3. AGGREGATE RATING SCHEMA
+   - Add only after collecting 10+ reviews
+   - Shows star rating in search results
+   - Improves click-through rate
+
+4. GOOGLE ANALYTICS 4
+   - Replace YOUR_GA4_ID with your actual ID
+   - Get from Google Analytics account
+   - Set up conversion tracking for WhatsApp clicks
+
+5. GOOGLE SEARCH CONSOLE
+   - Replace YOUR_VERIFICATION_CODE_HERE
+   - Get from Search Console setup
+   - Only need ONE verification method
+
+6. SERVICE SCHEMA
+   - Add to each service page (/services/)
+   - Helps with service discovery
+   - Shows in local search results
+
+7. VIDEO SCHEMA
+   - Add when hosting wedding videos
+   - Use proper video URLs
+   - Include thumbnail URLs
+
+8. IMAGE OPTIMIZATION
+   - Use responsive images with srcset
+   - Include width/height to prevent CLS
+   - Use descriptive alt text
+
+9. CONTACT FORM SCHEMA
+   - Optional but helpful
+   - Shows contact option in SERP
+   - Improves user engagement
+
+10. BLOG META TAGS
+    - Use for all blog posts
+    - Include featured images
+    - Add publication dates
+
+11. PERFORMANCE OPTIMIZATION
+    - Use preload for above-fold resources
+    - Use prefetch for likely next pages
+    - Critical for Core Web Vitals
+
+12. SOCIAL MEDIA TAGS
+    - Improves social sharing
+    - Shows previews correctly
+    - Helps with brand visibility
+
+NEXT STEPS:
+1. Review each snippet
+2. Customize with your data
+3. Add to appropriate pages
+4. Test with Google Rich Results Test
+5. Monitor in Search Console
+*/
