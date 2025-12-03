@@ -22,38 +22,67 @@ $(document).ready(function() {
     // Fallback: hide preloader after 3 seconds to prevent getting stuck
     setTimeout(hidePreloader, 3000);
 
-    // 3. Navbar Transition on Scroll
-    $(window).on('scroll', function() {
-        if ($(this).scrollTop() > 50) {
-            $('header').addClass('scrolled');
+    // 3. Navbar Transition on Scroll (use passive listener for better scroll performance)
+    var onScroll = function() {
+        if (window.scrollY > 50) {
+            document.querySelector('header').classList.add('scrolled');
         } else {
-            $('header').removeClass('scrolled');
+            document.querySelector('header').classList.remove('scrolled');
         }
-    });
+    };
+    // Use passive option to avoid blocking main thread during scroll
+    if (window.addEventListener) {
+        window.addEventListener('scroll', onScroll, { passive: true });
+    } else {
+        // fallback to jQuery for very old browsers
+        $(window).on('scroll', function() { onScroll(); });
+    }
 
     // Detect touch / mobile-like input and reduced-motion preference
     var isTouch = ('ontouchstart' in window) || (window.matchMedia && window.matchMedia('(hover: none)').matches);
 
     // 4. Custom Cursor Logic (only on non-touch devices)
-    var cursor = $('.cursor');
-    var cursor2 = $('.cursor2');
+    // Use requestAnimationFrame + transform to avoid layout thrash
+    var cursorEl = document.querySelector('.cursor');
+    var cursor2El = document.querySelector('.cursor2');
 
-    if (!isTouch) {
-        $(document).on('mousemove', function(e) {
-            cursor.css({ left: e.clientX, top: e.clientY });
-            cursor2.css({ left: e.clientX, top: e.clientY });
-        });
+    if (!isTouch && cursorEl && cursor2El) {
+        var mouseX = 0, mouseY = 0;
+        var posX = 0, posY = 0;
+        var pos2X = 0, pos2Y = 0;
 
-        // Hover effect for links and buttons
-        $('a, button, .service-box').on('mouseenter', function() {
-            $('body').addClass('hovered');
-        }).on('mouseleave', function() {
-            $('body').removeClass('hovered');
+        // Read-only mouse listener (doesn't block scrolling)
+        document.addEventListener('mousemove', function(e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        }, { passive: true });
+
+        function renderCursor() {
+            // simple ease / lerp for smooth movement
+            posX += (mouseX - posX) * 0.15;
+            posY += (mouseY - posY) * 0.15;
+            pos2X += (mouseX - pos2X) * 0.08;
+            pos2Y += (mouseY - pos2Y) * 0.08;
+
+            // use transform (composite) to avoid layout/reflow
+            cursorEl.style.transform = 'translate3d(' + posX + 'px,' + posY + 'px,0)';
+            cursor2El.style.transform = 'translate3d(' + pos2X + 'px,' + pos2Y + 'px,0)';
+
+            requestAnimationFrame(renderCursor);
+        }
+
+        requestAnimationFrame(renderCursor);
+
+        // Hover effect for interactive elements (use native listeners)
+        var hoverables = document.querySelectorAll('a, button, .service-box');
+        hoverables.forEach(function(el) {
+            el.addEventListener('mouseenter', function() { document.body.classList.add('hovered'); }, { passive: true });
+            el.addEventListener('mouseleave', function() { document.body.classList.remove('hovered'); }, { passive: true });
         });
     } else {
         // Hide custom cursor on touch devices
-        cursor.hide();
-        cursor2.hide();
+        if (cursorEl) cursorEl.style.display = 'none';
+        if (cursor2El) cursor2El.style.display = 'none';
     }
 
     // 5. Mobile Menu Toggle
