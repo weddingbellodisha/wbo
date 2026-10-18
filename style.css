@@ -462,3 +462,6 @@ footer { background: #000; padding: 60px 0 20px; text-align: center; border-top:
 @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
 }
+/* Staff/client login to the WeddingBell Studio app */
+.btn-login { border-color: rgba(255,255,255,0.35); color: #fff !important; }
+.btn-login:hover { background: #fff; color: #000 !important; border-color: #fff; }

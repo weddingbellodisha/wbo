@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.weddingbellodisha.studio",
+      "sha256_cert_fingerprints": [
+        "F4:61:45:A6:F9:AD:77:7D:5B:0E:D4:0F:FA:4E:45:69:CE:8B:FD:A8:AF:C1:87:E2:3E:C1:8B:EC:4F:11:89:93"
+      ]
+    }
+  }
+]
