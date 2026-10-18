@@ -1,180 +1,202 @@
-$(document).ready(function() {
+/* WeddingBellOdisha — site behaviour. Plain JS, no libraries. */
+(function () {
+    'use strict';
 
-    // 1. Initialize AOS (Animate On Scroll) - disable on mobile for perf
-    AOS.init({
-        once: true,
-        offset: 100,
-        duration: 900,
-        easing: 'ease-out-cubic',
-        disable: 'mobile'
-    });
+    var API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+        ? 'http://localhost:3000/api/enquiry'
+        : 'https://weddingbellodisha.vercel.app/api/enquiry';
+    var $ = function (s, r) { return (r || document).querySelector(s); };
+    var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-    // 2. Preloader Logic
-    // Fade out preloader after page loads OR after 3 seconds (whichever comes first)
-    function hidePreloader() {
-        $('.preloader').addClass('hide').fadeOut(800, function() {
-            $(this).hide();
+    var yr = $('#yr');
+    if (yr) yr.textContent = new Date().getFullYear();
+
+    /* ---------- Header: solid after the hero, active section link ---------- */
+    var nav = $('.nav');
+    var hero = $('.hero');
+    var dock = $('.dock');
+    var book = $('#book');
+    var heroVisible = true, bookVisible = false;
+
+    function updateDock() {
+        if (dock) dock.classList.toggle('is-on', !heroVisible && !bookVisible && !document.body.classList.contains('menu-open'));
+    }
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (e) {
+            heroVisible = e[0].isIntersecting;
+            nav.classList.toggle('is-solid', !heroVisible);
+            updateDock();
+        }, { rootMargin: '-80px 0px 0px 0px' }).observe(hero);
+
+        new IntersectionObserver(function (e) { bookVisible = e[0].isIntersecting; updateDock(); }, { threshold: 0.05 }).observe(book);
+
+        var links = $$('.nav__links a');
+        var spy = new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) {
+                if (!en.isIntersecting) return;
+                links.forEach(function (a) { a.classList.toggle('is-on', a.getAttribute('href') === '#' + en.target.id); });
+            });
+        }, { rootMargin: '-45% 0px -50% 0px' });
+        ['work', 'services', 'about', 'process', 'faq'].forEach(function (id) { var el = document.getElementById(id); if (el) spy.observe(el); });
+
+        /* Reveal on scroll */
+        var rv = new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) {
+                if (en.isIntersecting) { en.target.classList.add('is-in'); rv.unobserve(en.target); }
+            });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.01 });
+        $$('.reveal').forEach(function (el, i) {
+            // stagger siblings in grids
+            var sib = el.parentElement ? Array.prototype.indexOf.call(el.parentElement.children, el) : 0;
+            el.style.transitionDelay = Math.min(sib % 4, 3) * 70 + 'ms';
+            rv.observe(el);
         });
-    }
-    
-    $(window).on('load', hidePreloader);
-    
-    // Fallback: hide preloader after 3 seconds to prevent getting stuck
-    setTimeout(hidePreloader, 3000);
-
-    // 3. Navbar Transition on Scroll (use passive listener for better scroll performance)
-    var onScroll = function() {
-        if (window.scrollY > 50) {
-            document.querySelector('header').classList.add('scrolled');
-        } else {
-            document.querySelector('header').classList.remove('scrolled');
-        }
-    };
-    // Use passive option to avoid blocking main thread during scroll
-    if (window.addEventListener) {
-        window.addEventListener('scroll', onScroll, { passive: true });
     } else {
-        // fallback to jQuery for very old browsers
-        $(window).on('scroll', function() { onScroll(); });
+        nav.classList.add('is-solid');
+        $$('.reveal').forEach(function (el) { el.classList.add('is-in'); });
     }
 
-    // Detect touch / mobile-like input and reduced-motion preference
-    var isTouch = ('ontouchstart' in window) || (window.matchMedia && window.matchMedia('(hover: none)').matches);
+    /* ---------- Mobile menu ---------- */
+    var burger = $('.nav__burger');
+    var menu = $('#menu');
+    function setMenu(open) {
+        burger.setAttribute('aria-expanded', open);
+        burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+        document.body.classList.toggle('menu-open', open);
+        document.body.style.overflow = open ? 'hidden' : '';
+        if (open) { menu.hidden = false; requestAnimationFrame(function () { menu.classList.add('is-open'); }); }
+        else { menu.classList.remove('is-open'); setTimeout(function () { if (!menu.classList.contains('is-open')) menu.hidden = true; }, 300); }
+        updateDock();
+    }
+    burger.addEventListener('click', function () { setMenu(burger.getAttribute('aria-expanded') !== 'true'); });
+    $$('#menu a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.body.classList.contains('menu-open')) setMenu(false); });
 
-    // 4. Custom Cursor Logic (only on non-touch devices)
-    // Use requestAnimationFrame + transform to avoid layout thrash
-    var cursorEl = document.querySelector('.cursor');
-    var cursor2El = document.querySelector('.cursor2');
-
-    if (!isTouch && cursorEl && cursor2El) {
-        var mouseX = 0, mouseY = 0;
-        var posX = 0, posY = 0;
-        var pos2X = 0, pos2Y = 0;
-
-        // Read-only mouse listener (doesn't block scrolling)
-        document.addEventListener('mousemove', function(e) {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
+    /* ---------- Lightbox ---------- */
+    var lb = $('#lb');
+    var tiles = $$('.tile');
+    var lbImg = $('.lb__img', lb);
+    var idx = 0;
+    function show(i) {
+        idx = (i + tiles.length) % tiles.length;
+        var t = tiles[idx];
+        lbImg.classList.add('is-loading');
+        lbImg.onload = function () { lbImg.classList.remove('is-loading'); };
+        lbImg.src = t.getAttribute('href');
+        lbImg.alt = $('img', t).alt;
+        $('.lb__count', lb).textContent = (idx + 1) + ' / ' + tiles.length;
+        [1, -1].forEach(function (d) { var n = tiles[(idx + d + tiles.length) % tiles.length]; (new Image()).src = n.getAttribute('href'); });
+    }
+    if (lb && typeof lb.showModal === 'function') {
+        tiles.forEach(function (t, i) {
+            t.addEventListener('click', function (e) { e.preventDefault(); show(i); lb.showModal(); });
+        });
+        $('.lb__close', lb).addEventListener('click', function () { lb.close(); });
+        $('.lb__prev', lb).addEventListener('click', function () { show(idx - 1); });
+        $('.lb__next', lb).addEventListener('click', function () { show(idx + 1); });
+        lb.addEventListener('click', function (e) { if (e.target === lb) lb.close(); });
+        lb.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowLeft') show(idx - 1);
+            if (e.key === 'ArrowRight') show(idx + 1);
+        });
+        var sx = null, sy = null;
+        lb.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+        lb.addEventListener('touchend', function (e) {
+            if (sx === null) return;
+            var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(idx + (dx < 0 ? 1 : -1));
+            else if (dy > 90) lb.close();
+            sx = sy = null;
         }, { passive: true });
-
-        function renderCursor() {
-            // simple ease / lerp for smooth movement
-            posX += (mouseX - posX) * 0.15;
-            posY += (mouseY - posY) * 0.15;
-            pos2X += (mouseX - pos2X) * 0.08;
-            pos2Y += (mouseY - pos2Y) * 0.08;
-
-            // use transform (composite) to avoid layout/reflow
-            cursorEl.style.transform = 'translate3d(' + posX + 'px,' + posY + 'px,0)';
-            cursor2El.style.transform = 'translate3d(' + pos2X + 'px,' + pos2Y + 'px,0)';
-
-            requestAnimationFrame(renderCursor);
-        }
-
-        requestAnimationFrame(renderCursor);
-
-        // Hover effect for interactive elements (use native listeners)
-        var hoverables = document.querySelectorAll('a, button, .service-box');
-        hoverables.forEach(function(el) {
-            el.addEventListener('mouseenter', function() { document.body.classList.add('hovered'); }, { passive: true });
-            el.addEventListener('mouseleave', function() { document.body.classList.remove('hovered'); }, { passive: true });
-        });
-    } else {
-        // Hide custom cursor on touch devices
-        if (cursorEl) cursorEl.style.display = 'none';
-        if (cursor2El) cursor2El.style.display = 'none';
     }
 
-    // 5. Mobile Menu Toggle
-    $('.hamburger').on('click', function() {
-        $(this).toggleClass('active');
-        $('.mobile-menu').toggleClass('active');
+    /* ---------- Enquiry form ---------- */
+    var form = $('#enquiry');
+    if (!form) return;
+    var done = $('.done');
+    var alertBox = $('.form__alert', form);
+    var startedAt = Date.now();
+    form.elements.t.value = String(startedAt);
+
+    var date = form.elements.event_date;
+    var today = new Date(); today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    date.min = today.toISOString().slice(0, 10);
+
+    // "Enquire" on a service pre-selects the event and service.
+    $$('.svc__go').forEach(function (a) {
+        a.addEventListener('click', function () {
+            if (a.dataset.event) form.elements.event_type.value = a.dataset.event;
+            if (a.dataset.service) $$('input[name="services"]', form).forEach(function (c) { if (c.value === a.dataset.service) c.checked = true; });
+        });
     });
 
-    $('.m-link').on('click', function() {
-        $('.hamburger').removeClass('active');
-        $('.mobile-menu').removeClass('active');
+    function fieldError(name, msg) {
+        var input = form.elements[name];
+        var wrap = input && input.closest('.field');
+        var err = $('#e-' + name);
+        if (wrap) wrap.classList.toggle('is-bad', !!msg);
+        if (err) err.textContent = msg || '';
+        if (input) input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    }
+    function digits(v) { return String(v || '').replace(/\D/g, '').replace(/^(91|0)(?=\d{10}$)/, ''); }
+    function validate() {
+        var ok = true, first = null;
+        var name = form.elements.name.value.trim();
+        if (name.length < 2) { fieldError('name', 'Please enter your name.'); ok = false; first = first || 'name'; } else fieldError('name');
+        if (!/^[6-9]\d{9}$/.test(digits(form.elements.phone.value))) { fieldError('phone', 'Please enter a 10-digit mobile number.'); ok = false; first = first || 'phone'; } else fieldError('phone');
+        var em = form.elements.email.value.trim();
+        if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { fieldError('email', 'Please check your email address.'); ok = false; first = first || 'email'; } else fieldError('email');
+        if (first) form.elements[first].focus();
+        return ok;
+    }
+    ['name', 'phone', 'email'].forEach(function (n) {
+        form.elements[n].addEventListener('input', function () { if (this.closest('.field').classList.contains('is-bad')) validate(); });
     });
 
-    // 6. WhatsApp Redirection
-    $('.whatsapp-trigger').on('click', function(e) {
+    function showAlert(msg) {
+        alertBox.innerHTML = msg + ' You can also call or WhatsApp <a href="tel:+917978325313">+91 79783 25313</a>.';
+        alertBox.hidden = false;
+    }
+    function success(name) {
+        $('.done__name', done).textContent = name ? ', ' + name.split(' ')[0] : '';
+        form.hidden = true;
+        done.hidden = false;
+        done.focus({ preventScroll: true });
+        done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    form.addEventListener('submit', function (e) {
         e.preventDefault();
-        var message = "Hi WeddingBellOdisha, I visited your website and I am interested in your photography services.";
-        var phone = "917978325313"; 
-        var url = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
-        window.open(url, '_blank');
-    });
-
-    // 7. Lazy-load hero video when it becomes visible (saves initial bandwidth)
-    var heroVideo = document.getElementById('hero-video');
-    if (heroVideo) {
-        var sourceEl = heroVideo.querySelector('source');
-        var loadHeroVideo = function() {
-            if (sourceEl && sourceEl.dataset && sourceEl.dataset.src && !sourceEl.src) {
-                sourceEl.src = sourceEl.dataset.src;
-                try { 
-                    heroVideo.load(); 
-                    heroVideo.play().catch(function(){
-                        // Video failed to load or play, hide it
-                        heroVideo.style.display = 'none';
-                    }); 
-                } catch (e) {
-                    // Error loading video, hide it
-                    heroVideo.style.display = 'none';
-                }
-            }
+        alertBox.hidden = true;
+        if (!validate() || form.classList.contains('is-busy')) return;
+        form.classList.add('is-busy');
+        var fd = new FormData(form);
+        var body = {
+            name: fd.get('name'), phone: digits(fd.get('phone')), email: fd.get('email'),
+            event_type: fd.get('event_type'), event_date: fd.get('event_date'), location: fd.get('location'),
+            services: fd.getAll('services'), message: fd.get('message'), website: fd.get('website'), t: startedAt, source: 'website'
         };
-
-        // Handle video errors
-        heroVideo.addEventListener('error', function() {
-            heroVideo.style.display = 'none';
-        });
-
-        sourceEl.addEventListener('error', function() {
-            heroVideo.style.display = 'none';
-        });
-
-        if ('IntersectionObserver' in window) {
-            var io = new IntersectionObserver(function(entries) {
-                entries.forEach(function(entry) {
-                    if (entry.isIntersecting) {
-                        loadHeroVideo();
-                        io.disconnect();
-                    }
-                });
-            }, { rootMargin: '200px 0px' });
-            io.observe(heroVideo);
-        } else {
-            // Fallback: load immediately
-            loadHeroVideo();
-        }
-    }
-
-    // --- Initialize Magnific Popup Gallery ---
-    $('.popup-gallery').magnificPopup({
-        delegate: 'a', // child items selector, by clicking on it popup will open
-        type: 'image',
-        tLoading: 'Loading image #%curr%...',
-        mainClass: 'mfp-img-mobile',
-        gallery: {
-            enabled: true,
-            navigateByImgClick: true,
-            preload: [0,1]
-        },
-        image: {
-            tError: '<a href="%url%">The image #%curr%</a> could not be loaded.',
-            titleSrc: function(item) {
-                return item.el.find('img').attr('alt');
-            }
-        },
-        zoom: {
-            enabled: true,
-            duration: 300,
-            easing: 'ease-in-out',
-            opener: function(openerElement) {
-              return openerElement.is('img') ? openerElement : openerElement.find('img');
-            }
-        }
+        var ctrl = 'AbortController' in window ? new AbortController() : null;
+        var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 20000);
+        fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctrl ? ctrl.signal : undefined })
+            .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+            .then(function (res) {
+                if (res.ok) { success(body.name); form.reset(); return; }
+                if (res.field) fieldError(res.field, res.error);
+                showAlert(res.error || 'Sorry, that didn’t go through.');
+            })
+            .catch(function () { showAlert('We couldn’t reach our studio just now. Please check your connection and try again.'); })
+            .then(function () { clearTimeout(timer); form.classList.remove('is-busy'); });
     });
 
-});
+    $('#again').addEventListener('click', function () {
+        done.hidden = true; form.hidden = false; startedAt = Date.now() - 5000; form.elements.t.value = String(startedAt);
+        form.elements.name.focus();
+    });
+
+    // Without JavaScript the form posts directly and the server sends people back here with ?enquiry=sent
+    var q = new URLSearchParams(location.search).get('enquiry');
+    if (q === 'sent') success('');
+    else if (q === 'error') showAlert('Sorry, that didn’t go through.');
+    if (q) history.replaceState(null, '', location.pathname + '#book');
+})();
