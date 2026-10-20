@@ -100,6 +100,7 @@ p { margin: 0 0 1em; }
 .nav__burger[aria-expanded="true"] span:first-child { transform: translateY(4.25px) rotate(45deg); }
 .nav__burger[aria-expanded="true"] span:last-child { transform: translateY(-4.25px) rotate(-45deg); }
 .nav .btn--gold { display: none; }
+@media (max-width: 380px) { .nav__login { padding: 0 14px; letter-spacing: .1em; } }
 @media (min-width: 560px) { .nav .btn--gold { display: inline-flex; } }
 @media (min-width: 1000px) {
     .nav__links { display: flex; }
